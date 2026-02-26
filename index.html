@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOFT-AR — Vienna Airport (Draft)</title>
+
+  <!-- Optional: Replace with your preferred fonts later -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+
+  <style>
+     :root{
+  /* Dark theme (default) */
+  --bg: #16181d;
+  --ink: #eef1f5;
+  --muted: rgba(238,241,245,0.70);
+  --hairline: rgba(238,241,245,0.12);
+  --paper: rgba(255,255,255,0.92);
+  --paperInk: rgba(18,20,23,0.92);
+  --shadow: 0 18px 55px rgba(0,0,0,0.35);
+  --textureA: rgba(255,255,255,0.06);
+  --textureB: rgba(255,255,255,0.04);
+  --badgeBg: rgba(246,244,240,0.85);
+  --qrInk: rgba(18,20,23,0.45);
+  --hintInk: rgba(238,241,245,0.45);
+  --dotInk: rgba(238,241,245,0.35);
+  --toggleBg: rgba(255,255,255,0.08);
+  --toggleInk: var(--ink);
+  --toggleBorder: var(--hairline);
+  --austrianRed: #d71920;
+
+  --maxw: 1160px;
+  --padX: clamp(18px, 4vw, 56px);
+  --padY: clamp(18px, 3.5vw, 56px);
+
+  --phoneW: clamp(220px, 22vw, 330px);
+  --radius: 0px;
+}
+
+:root[data-theme="light"]{
+  --bg: #f6f4f0;
+  --ink: #121417;
+  --muted: rgba(18,20,23,0.68);
+  --hairline: rgba(18,20,23,0.14);
+  --paper: rgba(18,20,23,0.90);
+  --paperInk: rgba(246,244,240,0.95);
+  --shadow: 0 16px 45px rgba(18,20,23,0.12);
+  --textureA: rgba(18,20,23,0.06);
+  --textureB: rgba(18,20,23,0.04);
+  --badgeBg: rgba(255,255,255,0.86);
+  --qrInk: rgba(246,244,240,0.78);
+  --hintInk: rgba(18,20,23,0.38);
+  --dotInk: rgba(18,20,23,0.28);
+  --toggleBg: rgba(18,20,23,0.07);
+  --toggleInk: var(--ink);
+  --toggleBorder: var(--hairline);
+}
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ---------- Desktop snap container ---------- */
+    .deck{
+      height: 100vh;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    /* Disable snapping on small screens (mobile) */
+    @media (max-width: 840px){
+      .deck{
+        height: auto;
+        overflow: visible;
+        scroll-snap-type: none;
+      }
+    }
+
+    /* ---------- Slides ---------- */
+    .slide{
+      min-height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: grid;
+      place-items: center;
+      padding: var(--padY) var(--padX);
+      position: relative;
+    }
+
+    /* Soft background texture / vignette */
+body{
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(1100px 700px at 65% 25%, var(--textureA), transparent 60%),
+    radial-gradient(900px 600px at 20% 70%, var(--textureB), transparent 60%);
+  opacity: 0.55;
+}
+    .inner{
+      width: min(var(--maxw), 100%);
+      display: grid;
+      gap: clamp(18px, 3vw, 46px);
+      position: relative; /* above ::before */
+      z-index: 1;
+    }
+
+
+    .experience{
+  display: grid;
+  grid-template-columns: clamp(260px, 26vw, 380px) 1fr;
+  grid-template-areas:
+    "phone header"
+    "phone body";
+
+  gap: clamp(40px, 6vw, 120px);
+
+ align-items: start;
+}
+
+.exp-header{ grid-area: header; }
+.phone{ grid-area: phone; }
+.exp-body{ grid-area: body; }
+
+/* Mobile: title -> video -> details */
+@media (max-width: 840px){
+  .experience{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "phone"
+      "body";
+    align-items: start;
+  }
+
+  .phone{
+    justify-self: stretch;
+    width: min(420px, 100%);
+  }
+}
+
+    /* ---------- Typography ---------- */
+    h1,h2,h3{ margin:0; font-family: "Playfair Display", Georgia, serif; letter-spacing: -0.02em; }
+    h1{ font-size: clamp(34px, 4.2vw, 62px); line-height: 1.05; }
+    h2{ font-size: clamp(26px, 3vw, 44px); line-height: 1.1; }
+    .kicker{
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .lead{
+      font-size: clamp(16px, 1.6vw, 20px);
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+    .body{
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 78ch;
+    }
+
+    /* ---------- Phone video frame ---------- */
+.phone{
+  width: 100%;
+  aspect-ratio: 9 / 18;
+  height: auto;
+  align-self: start;
+  justify-self: start;
+}
+.phone::after{ display:none; }
+
+    @media (max-width: 840px){
+      .phone{
+        width: min(420px, 100%);
+        justify-self: stretch;
+      }
+    }
+
+.phone-media{
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 18;
+  position: relative;
+  border-radius: 18px;   /* try 0 for fully sharp */
+  overflow: hidden;
+  background: #000;
+ 
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.04);
+
+}
+
+    .phone-media video{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .phone-badge{
+      position:absolute;
+      left: 16px;
+      top: 16px;
+      background: var(--badgeBg);
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ---------- Right-side content ---------- */
+.panel{
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+    .meta{
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 840px){
+      .meta{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+.chip{
+  border: none;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 12px;
+
+  background: var(--paper);
+  color: var(--paperInk);
+}
+
+.qr{
+  width: 164px;
+  border-radius: 0;
+  border: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align:center;
+  padding: 0;
+  justify-self: end;
+}
+
+.qr img{
+  width: 124px;
+  height: 124px;
+  display: block;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.qr-note{
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.qr-note strong{
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+    @media (max-width: 840px){
+      .qr{ justify-self: start; }
+    }
+
+    /* ---------- Full-bleed text slides ---------- */
+    .centerText{
+      grid-template-columns: 1fr;
+      align-items: center;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .centerText .panel{
+      max-width: 900px;
+      padding: clamp(18px, 3vw, 36px);
+    }
+
+    /* ---------- Subtle reveal animation ---------- */
+    .reveal{
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 600ms ease, transform 600ms ease;
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---------- Chip swipe-in animation ---------- */
+    .reveal .chip{
+      opacity: 0;
+      transform: translateX(28px);
+    }
+
+    .reveal.is-visible .chip{
+      animation: chipSwipeIn 440ms cubic-bezier(.2,.9,.2,1) forwards;
+    }
+
+    .reveal.is-visible .chip:nth-child(1){ animation-delay: 0ms; }
+    .reveal.is-visible .chip:nth-child(2){ animation-delay: 60ms; }
+    .reveal.is-visible .chip:nth-child(3){ animation-delay: 120ms; }
+    .reveal.is-visible .chip:nth-child(4){ animation-delay: 180ms; }
+    .reveal.is-visible .chip:nth-child(5){ animation-delay: 240ms; }
+    .reveal.is-visible .chip:nth-child(6){ animation-delay: 300ms; }
+    .reveal.is-visible .chip:nth-child(7){ animation-delay: 360ms; }
+    .reveal.is-visible .chip:nth-child(8){ animation-delay: 420ms; }
+
+    @keyframes chipSwipeIn{
+      from{
+        opacity: 0;
+        transform: translateX(28px);
+      }
+      to{
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .reveal .chip,
+      .reveal.is-visible .chip{
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+    }
+
+    /* ---------- Small footer nav hint ---------- */
+    .hint{
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      color: var(--hintInk);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      z-index: 2;
+      user-select: none;
+      pointer-events:none;
+    }
+    .dot{
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--dotInk);
+    }
+
+    .theme-switch{
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: 16px;
+      z-index: 20;
+      border: 1px solid var(--toggleBorder);
+      background: var(--toggleBg);
+      color: var(--toggleInk);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+
+    .theme-switch:hover{
+      filter: brightness(1.08);
+    }
+
+    .austrian-airlines-text{
+      color: var(--austrianRed);
+    }
+
+    @media (max-width: 840px){
+      .hint{ display:none; }
+      .theme-switch{ right: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="theme-switch" id="themeSwitch" type="button" aria-label="Toggle theme"></button>
+  <main class="deck" id="deck">
+
+    <!-- 0) Intro -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">TripAnimal</div>
+          <h1>Servus, Vienna!</h1>
+          <p class="lead" style="margin: 18px auto 0;">
+            Here are some WebAR experience concepts we can build for Austrian Airlines and/or Vienna Airport. Each experience is designed to be a quick, high-impact moment that can run on-site with minimal setup.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">No app download</span>
+            <span class="chip">Fast to deploy</span>
+            <span class="chip">Campaign-friendly</span>
+            <span class="chip">On-site + demo-ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="hint"><span class="dot"></span><span>Scroll</span><span class="dot"></span></div>
+    </section>
+
+    <!-- SECTION: Flying Experiences -->
+<section class="slide">
+  <div class="inner experience">
+    <div class="phone reveal">
+      <div class="phone-media">
+        <div class="phone-badge">Flying</div>
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="./assets/video/phoenix.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+
+    <div class="panel reveal">
+      <div class="kicker">Experience</div>
+      <h2>Phoenix Flight</h2>
+      <p class="lead" style="margin-top: 14px;">
+        As requested, a mythical flying experience that can evoke the magic of flight. Meant for VIE visitors terrace or other large spaces. 
+      </p>
+
+      <div class="meta">
+        <div>
+          <div class="chips">
+            <span class="chip">Build complexity: Medium</span>
+            <span class="chip">Footprint: QR start • 15–30s</span>
+            <span class="chip">Best placed: visitors terrace • arrival area</span> 
+          </div>
+
+          <p class="body" style="margin-top: 14px;">
+            If this is the experience you pick, we can calibrate it depending on the exact location and view angles, to maximize the “wow” moment for viewers. We will pay for the tickets.
+          </p>
+        </div>
+
+        <div class="qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=248x248&amp;format=png&amp;data=https%3A%2F%2Fairplanes-8e6ee.web.app%2Ftasks%2Fphoenix-terrace-shoot%2Findex.html" alt="QR code for the Phoenix Flight experience" loading="lazy" />
+          <p class="qr-note">Please use <strong>Android</strong> phone.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+    <section class="slide">
+      <div class="inner experience">
+        <div class="phone reveal">
+          <div class="phone-media">
+            <div class="phone-badge">Flying</div>
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./assets/video/parachute.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="kicker">Experience</div>
+          <h2>Airplane Takeoff</h2>
+          <p class="lead" style="margin-top: 14px;">
+            A dynamic takeoff experience that can be enjoyed in tight spaces (e.g. corridors). With parachuting bunnies because why not.
+          </p>
+
+          <div class="meta">
+            <div>
+              <div class="chips">
+                <span class="chip">Build complexity: Low</span>
+                <span class="chip">Footprint: QR start • 10–20s</span>
+                <span class="chip">Best placed: entrances • corridors</span>
+              </div>
+              <p class="body" style="margin-top: 14px;">
+                Bunnies can be replaced with other characters or objects that fit your brand language or campaign theme — we just wanted to show something playful and unexpected to demonstrate the flexibility of the format.
+              </p>
+            </div>
+            <div class="qr">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=248x248&amp;format=png&amp;data=https%3A%2F%2Fairplanes-8e6ee.web.app%2Ftasks%2Ftravelling-circus%2Findex.html" alt="QR code for the Airplane Takeoff experience" loading="lazy" />
+              <p class="qr-note">Please use <strong>Android</strong> phone.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Austrian Airlines Logo Format (bundle) -->
+    <section class="slide">
+      <div class="inner experience">
+        <div class="phone reveal">
+          <div class="phone-media">
+            <div class="phone-badge">Logo format</div>
+            <!-- One montage video for 3–4 variants -->
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./assets/video/austrian_logo.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="kicker">Format</div>
+          <h2>Austrian Airlines Logo-Triggered AR</h2>
+          <p class="lead" style="margin-top: 14px;">
+           An experience triggered by the Austrian Airlines logo located on signs, promo stands, or other branded materials around the airport. Final version of the 3D airplane will look like it belongs to your fleet.
+
+          <div class="meta">
+            <div>
+              <div class="chips">
+                <span class="chip">Build complexity: High</span>
+                <span class="chip">Scales to many variants</span>
+                <span class="chip">Best placed: signage • promo stands</span>
+              </div>
+
+              <p class="body" style="margin-top: 14px;">
+                Due to its elegant, minimalist composition and smooth color gradients, the Austrian Airlines logo presents limited high-contrast feature points for standard image-tracking models, making it less suited to conventional AR recognition pipelines. That is why, if you select this experience, we will build a custom computer vision model to track it. All we need from you is 120 - 150 photos of the logo in different settings, lighting conditions, and angles (we can guide you through the process to make it as easy as possible).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Human-scale explorations -->
+    <section class="slide">
+      <div class="inner experience">
+        <div class="phone reveal">
+          <div class="phone-media">
+            <div class="phone-badge">Human-scale</div>
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./assets/video/animals.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="kicker">Experience</div>
+          <h2>Welcome / sendoff party</h2>
+          <p class="lead" style="margin-top: 14px;">
+           A party of animals to welcome or send off visitors creating a happy moment that can be enjoyed by all ages. 
+          </p>
+
+          <div class="meta">
+            <div>
+              <div class="chips">
+                <span class="chip">Build complexity: Low</span>
+                <span class="chip">Best placed: arrivals • exits</span>
+                <span class="chip">Footprint: QR start • 10–20s</span>
+              </div>
+              <p class="body" style="margin-top: 14px;">
+                Can be adapted to different themes (e.g. seasonal, event-related) or visual style. Currently featuring a Vienna-born cat, a Steiermark hiker, a pilot puppy and a cyclist bunny who says "Servus."
+              </p>
+            </div>
+            <div class="qr">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=248x248&amp;format=png&amp;data=https%3A%2F%2Fairplanes-8e6ee.web.app%2Ftasks%2Fairport-greeting-gif%2Findex.html" alt="QR code for the Welcome/sendoff experience" loading="lazy" />
+              <p class="qr-note">Please use <strong>Android</strong> phone.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="inner experience">
+        <div class="phone reveal">
+          <div class="phone-media">
+            <div class="phone-badge">Human-scale</div>
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./assets/video/portal.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="kicker">Experience</div>
+          <h2>Suitcase Eurovision</h2>
+          <p class="lead" style="margin-top: 14px;">
+            A portal opens into Eurovision to reveal a suitcase carrying a song. 
+          </p>
+
+          <div class="meta">
+            <div>
+              <div class="chips">
+                <span class="chip">Build complexity: Medium</span>
+                <span class="chip">Best placed: baggage • arrivals</span>
+                <span class="chip">Footprint: QR start • 15–30s</span>
+              </div>
+              <p class="body" style="margin-top: 14px;">
+                Only Maria likes this experience. Still, it can easily turn into a skier coming out of a mountain portal, or an airplane appearing from a different city's skyline.
+              </p>
+            </div>
+            <div class="qr">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=248x248&amp;format=png&amp;data=https%3A%2F%2Fairplanes-8e6ee.web.app%2Ftasks%2Fportal%2Findex.html" alt="QR code for the Portal experience" loading="lazy" />
+              <p class="qr-note">Please use <strong>Android</strong> phone.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- <section class="slide">
+      <div class="inner experience">
+        <div class="phone reveal">
+          <div class="phone-media">
+            <div class="phone-badge">Human-scale</div>
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./assets/video/landing_planes.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+
+        <div class="panel reveal">
+          <div class="kicker">Experience</div>
+          <h2>Landing Planes</h2>
+          <p class="lead" style="margin-top: 14px;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Light interaction, clear “wow”, fast onboarding.
+          </p>
+
+          <div class="meta">
+            <div>
+              <div class="chips">
+                <span class="chip">Build complexity: High</span>
+                <span class="chip">Best placed: open areas • demos</span>
+                <span class="chip">Footprint: QR start • 20–40s</span>
+              </div>
+              <p class="body" style="margin-top: 14px;">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+              </p>
+            </div>
+            <div class="qr">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=248x248&amp;format=png&amp;data=https%3A%2F%2Fairplanes-8e6ee.web.app%2Ftasks%2Fportal%2Findex.html" alt="QR code for the Portal experience" loading="lazy" />
+              <p class="qr-note">Please use <strong>Android</strong> phone.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- After experiences: Art flexibility -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Flexibility</div>
+          <h2>Art direction can match your preferences</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. We can adapt tone, characters, typography, and style to your brand language.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Minimal</span>
+            <span class="chip">Premium</span>
+            <span class="chip">Family</span>
+            <span class="chip">Festival</span>
+            <span class="chip">Airline-branded</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Optional NFTs -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Optional</div>
+          <h2>Collectible digital souvenirs (NFTs)</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Optional minting per experience or campaign, aligned with policy and comms preferences.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Per experience</span>
+            <span class="chip">Per campaign</span>
+            <span class="chip">Purely collectible</span>
+            <span class="chip">Unlock future content</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Android vs iOS -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Platform</div>
+          <h2>Android + iOS strategy</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. WebAR is more capable on Android (WebXR), while iOS requires a curated approach.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Android: full WebXR AR</span>
+            <span class="chip">iOS: strong fallback experience</span>
+            <span class="chip">Consistent narrative</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Now what -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Next</div>
+          <h2>Now what?</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pick 2–3 experiences, we deliver a testable pilot package you can run on-site.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Choose experiences</span>
+            <span class="chip">We deliver prototypes</span>
+            <span class="chip">Iterate based on feedback</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Delivery</div>
+          <h2>Timeline (example)</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. A fast, low-risk pilot plan.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Week 1: select + constraints</span>
+            <span class="chip">Week 2: first playable builds</span>
+            <span class="chip">Week 3: iteration + polish</span>
+            <span class="chip">Week 4: pilot-ready package</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Out of scope -->
+    <section class="slide">
+      <div class="inner centerText">
+        <div class="panel reveal">
+          <div class="kicker">Roadmap</div>
+          <h2>Next phase (not in scope for this pilot)</h2>
+          <p class="lead" style="margin: 18px auto 0;">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. We have applied for funding to expand into larger, operational experiences.
+          </p>
+          <div class="chips" style="justify-content:center; margin-top: 22px;">
+            <span class="chip">Scavenger hunt across terminals</span>
+            <span class="chip">Virtual signage & guidance overlays</span>
+            <span class="chip">Funding pending — follow-up proposal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const THEME_KEY = "pitch-theme";
+    const themeSwitch = document.getElementById("themeSwitch");
+    const root = document.documentElement;
+
+    const setTheme = (theme) => {
+      root.dataset.theme = theme;
+      themeSwitch.textContent = theme === "light" ? "Switch to dark" : "Switch to light";
+      themeSwitch.setAttribute("aria-pressed", String(theme === "light"));
+    };
+
+    setTheme("light");
+    try {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
+    } catch (_) {}
+
+    themeSwitch.addEventListener("click", () => {
+      const next = root.dataset.theme === "light" ? "dark" : "light";
+      setTheme(next);
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (_) {}
+    });
+
+    // -----------------------------------------------
+    // Reveal on scroll (subtle editorial animation)
+    // -----------------------------------------------
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!prefersReduced) {
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) e.target.classList.add("is-visible");
+        }
+      }, { threshold: 0.18 });
+
+      document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+    } else {
+      document.querySelectorAll(".reveal").forEach(el => el.classList.add("is-visible"));
+    }
+
+    const highlightPhraseInTextNodes = (rootNode, phrase, className) => {
+      const safePhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(safePhrase, "g");
+      const walker = document.createTreeWalker(rootNode, NodeFilter.SHOW_TEXT);
+      const textNodes = [];
+
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const parent = node.parentElement;
+        if (!parent) continue;
+        if (["SCRIPT", "STYLE", "NOSCRIPT"].includes(parent.tagName)) continue;
+        if (parent.closest(`.${className}`)) continue;
+        if (regex.test(node.nodeValue)) textNodes.push(node);
+        regex.lastIndex = 0;
+      }
+
+      for (const node of textNodes) {
+        const html = node.nodeValue.replace(regex, `<span class="${className}">${phrase}</span>`);
+        const fragment = document.createRange().createContextualFragment(html);
+        node.parentNode.replaceChild(fragment, node);
+      }
+    };
+
+    highlightPhraseInTextNodes(document.body, "Austrian Airlines", "austrian-airlines-text");
+
+    // Native scroll-snap handles slide transitions.
+  </script>
+</body>
+</html>
