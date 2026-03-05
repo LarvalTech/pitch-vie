@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SOFT-AR — Vienna Airport (Draft)</title>
+  <title>Vienna Airport Playground</title>
 
   <!-- Optional: Replace with your preferred fonts later -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -426,10 +426,117 @@ body{
       .hint{ display:none; }
       .theme-switch{ right: 12px; }
     }
+
+    /* ---- Password gate ---- */
+    #pw-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #f6f4f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+    #pw-gate h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      color: #121417;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    #pw-gate p {
+      color: rgba(18,20,23,0.55);
+      font-size: 0.85rem;
+      margin: 0;
+    }
+    #pw-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #pw-input {
+      padding: 10px 16px;
+      border: 1px solid rgba(18,20,23,0.2);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #121417;
+      outline: none;
+      width: 240px;
+    }
+    #pw-input:focus {
+      border-color: rgba(18,20,23,0.5);
+    }
+    #pw-submit {
+      padding: 10px 22px;
+      background: #121417;
+      color: #f6f4f0;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    #pw-submit:hover { background: #2a2d33; }
+    #pw-error {
+      color: #c0392b;
+      font-size: 0.82rem;
+      min-height: 1.2em;
+      margin: 0;
+    }
+    body.locked { overflow: hidden; }
   </style>
 </head>
 
-<body>
+<body class="locked">
+
+  <!-- Password gate -->
+  <div id="pw-gate">
+    <h2>Vienna Airport Playground</h2>
+    <p>Enter the access password to continue.</p>
+    <div id="pw-form">
+      <input id="pw-input" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="pw-submit" type="button">Enter</button>
+    </div>
+    <p id="pw-error"></p>
+  </div>
+
+  <script>
+    (function(){
+      var PASS = 'EIT_Playground_AA_VIE';
+      var gate = document.getElementById('pw-gate');
+      var input = document.getElementById('pw-input');
+      var btn = document.getElementById('pw-submit');
+      var err = document.getElementById('pw-error');
+      function unlock(){
+        var v = input.value;
+        if(v === PASS){
+          gate.style.display = 'none';
+          document.body.classList.remove('locked');
+          try{ sessionStorage.setItem('pw-ok','1'); }catch(e){}
+        } else {
+          err.textContent = 'Incorrect password. Please try again.';
+          input.value = '';
+          input.focus();
+        }
+      }
+      try{
+        if(sessionStorage.getItem('pw-ok')==='1'){
+          gate.style.display='none';
+          document.body.classList.remove('locked');
+        }
+      }catch(e){}
+      btn.addEventListener('click', unlock);
+      input.addEventListener('keydown', function(e){ if(e.key==='Enter') unlock(); });
+    })();
+  </script>
   <button class="theme-switch" id="themeSwitch" type="button" aria-label="Toggle theme"></button>
   <main class="deck" id="deck">
 
@@ -437,10 +544,10 @@ body{
     <section class="slide">
       <div class="inner centerText">
         <div class="panel reveal">
-          <div class="kicker">TripAnimal</div>
-          <h1>Servus, Vienna!</h1>
+          <div class="kicker">GreenGames</div>
+          <h1>Showcase for Vienna Airport Innovation playground</h1>
           <p class="lead" style="margin: 18px auto 0;">
-            Here are some WebAR experience concepts we can build for Austrian Airlines and/or Vienna Airport. Each experience is designed to be a quick, high-impact moment that can run on-site with minimal setup.
+            Introducing a set of delightful sample WebAR experiences for travellers passing through a large airport mobility centre. Diverse spaces, throughput at scale, where travellers often dally before taking their next steps. Each experience is designed to be a quick, high-impact moment that can run on-site with minimal setup.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">No app download</span>
@@ -467,9 +574,9 @@ body{
 
     <div class="panel reveal">
       <div class="kicker">Experience</div>
-      <h2>Phoenix Flight</h2>
+          <h2>My Phoenix Soars</h2>
       <p class="lead" style="margin-top: 14px;">
-        As requested, a mythical flying experience that can evoke the magic of flight. Meant for VIE visitors terrace or other large spaces. 
+        Evoking the childlike delight of imagined flight, a colourful bird emerges, as though from behind the viewer, to fly high above the room. It turns in a full circle and returns to the viewer, passing overhead in a colorful display of all its feathered finery. Intended for deployment in large arrival / departure halls, visitors terrace, or even on the tarmac.
       </p>
 
       <div class="meta">
@@ -481,7 +588,7 @@ body{
           </div>
 
           <p class="body" style="margin-top: 14px;">
-            If this is the experience you pick, we can calibrate it depending on the exact location and view angles, to maximize the “wow” moment for viewers. We will pay for the tickets.
+            This experience can be calibrated to a preferred location, with targeted viewing angles to enhance that ‘Wow’ moment for viewers.
           </p>
         </div>
 
@@ -508,9 +615,9 @@ body{
 
         <div class="panel reveal">
           <div class="kicker">Experience</div>
-          <h2>Airplane Takeoff</h2>
+          <h2>A soft-landing</h2>
           <p class="lead" style="margin-top: 14px;">
-            A dynamic takeoff experience that can be enjoyed in tight spaces (e.g. corridors). With parachuting bunnies because why not.
+            A dynamic flight experience, to be enjoyed in tight spaces (e.g. corridors and hospitality, seating areas). An old-fashioned airplane flies from behind the user, when all at once a stream of adventurous bunnies, harnessed in parachutes and riding bicycles gently drift to a soft-landing.
           </p>
 
           <div class="meta">
@@ -521,7 +628,7 @@ body{
                 <span class="chip">Best placed: entrances • corridors</span>
               </div>
               <p class="body" style="margin-top: 14px;">
-                Bunnies can be replaced with other characters or objects that fit your brand language or campaign theme — we just wanted to show something playful and unexpected to demonstrate the flexibility of the format.
+                This format is remarkably flexible. Characters can be replaced and objects selected that meet the criteria for bespoke brand experiences.
               </p>
             </div>
             <div class="qr">
@@ -533,13 +640,12 @@ body{
       </div>
     </section>
 
-    <!-- SECTION: Austrian Airlines Logo Format (bundle) -->
+    <!-- SECTION: Austrian Airlines Logo Format (bundle) — HIDDEN
     <section class="slide">
       <div class="inner experience">
         <div class="phone reveal">
           <div class="phone-media">
             <div class="phone-badge">Logo format</div>
-            <!-- One montage video for 3–4 variants -->
             <video autoplay muted loop playsinline preload="metadata">
               <source src="./assets/video/austrian_logo.mp4" type="video/mp4" />
             </video>
@@ -568,6 +674,7 @@ body{
         </div>
       </div>
     </section>
+    END HIDDEN -->
 
     <!-- SECTION: Human-scale explorations -->
     <section class="slide">
@@ -583,9 +690,9 @@ body{
 
         <div class="panel reveal">
           <div class="kicker">Experience</div>
-          <h2>Welcome / sendoff party</h2>
+          <h2>Airport Party</h2>
           <p class="lead" style="margin-top: 14px;">
-           A party of animals to welcome or send off visitors creating a happy moment that can be enjoyed by all ages. 
+           Each traveller can have their own arrival or departure party with the characters in the game. A happy moment to experience in a queue at departures, security, embarking, disembarking, customs or at duty-free. A human scale experience for travellers of all ages to delight in the moments of departure, arrival and return.
           </p>
 
           <div class="meta">
@@ -596,7 +703,7 @@ body{
                 <span class="chip">Footprint: QR start • 10–20s</span>
               </div>
               <p class="body" style="margin-top: 14px;">
-                Can be adapted to different themes (e.g. seasonal, event-related) or visual style. Currently featuring a Vienna-born cat, a Steiermark hiker, a pilot puppy and a cyclist bunny who says "Servus."
+                This format is again, hugely flexible and can be adapted with event-based and/or seasonal themes. Characters can be replaced and objects selected that meet the criteria for bespoke brand experiences. Currently featuring a Vienna-born cat, a Steiermark hiker, a pilot puppy and a cyclist bunny who says "Servus."
               </p>
             </div>
             <div class="qr">
@@ -608,6 +715,7 @@ body{
       </div>
     </section>
 
+    <!-- Suitcase Eurovision slide — HIDDEN
     <section class="slide">
       <div class="inner experience">
         <div class="phone reveal">
@@ -623,7 +731,7 @@ body{
           <div class="kicker">Experience</div>
           <h2>Suitcase Eurovision</h2>
           <p class="lead" style="margin-top: 14px;">
-            A portal opens into Eurovision to reveal a suitcase carrying a song. 
+            A portal opens into Eurovision to reveal a suitcase carrying a song.
           </p>
 
           <div class="meta">
@@ -645,6 +753,7 @@ body{
         </div>
       </div>
     </section>
+    END HIDDEN -->
 
     <!-- <section class="slide">
       <div class="inner experience">
@@ -691,7 +800,7 @@ body{
           <div class="kicker">Flexibility</div>
           <h2>Art direction can match your preferences</h2>
           <p class="lead" style="margin: 18px auto 0;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. We can adapt tone, characters, typography, and style to your brand language.
+            Characters are eminently flexible. Tone, character, typography, and style to meet client and partner tastes and requirements.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">Minimal</span>
@@ -711,7 +820,7 @@ body{
           <div class="kicker">Optional</div>
           <h2>Collectible digital souvenirs (NFTs)</h2>
           <p class="lead" style="margin: 18px auto 0;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Optional minting per experience or campaign, aligned with policy and comms preferences.
+            With our Solana token engine, we can create collectable NFT moments from screenshots viewers take with their phones. Optional minting per experience or campaign, aligned with policies and preferences.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">Per experience</span>
@@ -730,7 +839,7 @@ body{
           <div class="kicker">Platform</div>
           <h2>Android + iOS strategy</h2>
           <p class="lead" style="margin: 18px auto 0;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. WebAR is more capable on Android (WebXR), while iOS requires a curated approach.
+            WebAR is more capable on Android (WebXR), while iOS requires a curated approach. Resources currently sought to build out iOS compatibility.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">Android: full WebXR AR</span>
@@ -748,7 +857,7 @@ body{
           <div class="kicker">Next</div>
           <h2>Now what?</h2>
           <p class="lead" style="margin: 18px auto 0;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pick 2–3 experiences, we deliver a testable pilot package you can run on-site.
+            We offer these three brandable experiences to our innovation colleagues in the EIT Tourism and Mobility Challenge, allowing their interventions to host a branded presence at the airport. We can accommodate between 5 and 10 feature projects, with their own branded character appearing in the ‘Soft-landings’ and ‘Welcome/Send-off party scenes’. We will provide a pilot package in advance, to test in-situ and to trial with partners.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">Choose experiences</span>
@@ -764,21 +873,22 @@ body{
       <div class="inner centerText">
         <div class="panel reveal">
           <div class="kicker">Delivery</div>
-          <h2>Timeline (example)</h2>
+          <h2>Timeline</h2>
           <p class="lead" style="margin: 18px auto 0;">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. A fast, low-risk pilot plan.
+            A fast, low-risk pilot plan. Deliverable, with appropriate partner input in 6 weeks.
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
-            <span class="chip">Week 1: select + constraints</span>
-            <span class="chip">Week 2: first playable builds</span>
-            <span class="chip">Week 3: iteration + polish</span>
-            <span class="chip">Week 4: pilot-ready package</span>
+            <span class="chip">Week 2: select + constraints</span>
+            <span class="chip">Week 4: first playable builds</span>
+            <span class="chip">Week 5: iteration + pilot + polish</span>
+            <span class="chip">Week 6: ready package</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Out of scope -->
+    <!-- Roadmap slide — HIDDEN
     <section class="slide">
       <div class="inner centerText">
         <div class="panel reveal">
@@ -789,12 +899,13 @@ body{
           </p>
           <div class="chips" style="justify-content:center; margin-top: 22px;">
             <span class="chip">Scavenger hunt across terminals</span>
-            <span class="chip">Virtual signage & guidance overlays</span>
+            <span class="chip">Virtual signage &amp; guidance overlays</span>
             <span class="chip">Funding pending — follow-up proposal</span>
           </div>
         </div>
       </div>
     </section>
+    END HIDDEN -->
 
   </main>
 
